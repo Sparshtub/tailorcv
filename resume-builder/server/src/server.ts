@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import uploadRouter from './routes/upload';
 import tailorRouter from './routes/tailor';
 import exportRouter from './routes/export';
+import templateRouter from './routes/template';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/upload', uploadRouter);
 app.use('/api/tailor', tailorRouter);
 app.use('/api/export', exportRouter);
+app.use('/api/template', templateRouter);
 
 // Start Server
 app.listen(PORT, () => {

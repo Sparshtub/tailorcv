@@ -5,6 +5,7 @@ import JobDescriptionInput from './components/JobDescriptionInput';
 import TemplatePicker from './components/TemplatePicker';
 import TailoredOutput from './components/TailoredOutput';
 import ResumePreview from './components/ResumePreview';
+import CustomTemplateInput from './components/CustomTemplateInput';
 import { Sparkles, Download, RefreshCw, CheckCircle } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
@@ -53,6 +54,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [hasGenerated, setHasGenerated] = useState<boolean>(false);
+  const [customHtmlTemplate, setCustomHtmlTemplate] = useState<string | null>(null);
   
   // Generated structured results
   const [resumeData, setResumeData] = useState<ResumeData>(INITIAL_RESUME);
@@ -129,7 +131,8 @@ export default function App() {
         templateId,
         data: outputType === 'resume' ? resumeData : coverLetterData,
         styles: { accentColor, fontFamily },
-        type: outputType
+        type: outputType,
+        customHtmlTemplate
       };
 
       const response = await axios.post(`${BACKEND_URL}/api/export`, payload, {
@@ -265,6 +268,13 @@ export default function App() {
             onFontFamilyChange={setFontFamily}
           />
 
+          <CustomTemplateInput
+            onTemplateLoaded={setCustomHtmlTemplate}
+            onClearTemplate={() => setCustomHtmlTemplate(null)}
+            isActive={!!customHtmlTemplate}
+            backendUrl={BACKEND_URL}
+          />
+
           {/* Live Page Preview */}
           <div className="flex flex-col gap-2">
             <span className="text-xs font-semibold text-gray-400 tracking-wider uppercase">Live Page Preview</span>
@@ -275,6 +285,7 @@ export default function App() {
                 resumeData={resumeData}
                 coverLetterData={coverLetterData}
                 styles={{ accentColor, fontFamily }}
+                customHtmlTemplate={customHtmlTemplate}
               />
             </div>
           </div>

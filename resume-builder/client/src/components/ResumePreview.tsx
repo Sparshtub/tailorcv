@@ -23,6 +23,7 @@ interface ResumePreviewProps {
     accentColor: string;
     fontFamily: string;
   };
+  customHtmlTemplate?: string | null;
 }
 
 export default function ResumePreview({
@@ -30,7 +31,8 @@ export default function ResumePreview({
   type,
   resumeData,
   coverLetterData,
-  styles
+  styles,
+  customHtmlTemplate
 }: ResumePreviewProps) {
   const { name, contact } = type === 'resume' ? resumeData : coverLetterData;
   const accent = styles.accentColor;
@@ -46,6 +48,45 @@ export default function ResumePreview({
       ? 'Roboto, sans-serif'
       : 'IBM Plex Sans, sans-serif'
   };
+
+  // Custom template rendering handler
+  if (customHtmlTemplate) {
+    const getCustomTemplatePreview = () => {
+      const skillsHtml = type === 'resume' ? resumeData.skills : '';
+      const resumeMainHtml = type === 'resume' ? `
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <div><h2>Summary</h2><div>${resumeData.summary || ''}</div></div>
+          <div><h2>Experience</h2><div>${resumeData.experience || ''}</div></div>
+          <div><h2>Education</h2><div>${resumeData.education || ''}</div></div>
+        </div>
+      ` : '';
+      const coverLetterMainHtml = type === 'cover-letter' ? `
+        <div>${coverLetterData.content || ''}</div>
+      ` : '';
+
+      return customHtmlTemplate
+        .replace(/{name}/g, name || 'Your Name')
+        .replace(/{contact}/g, contact || 'Contact Info')
+        .replace(/{accentColor}/g, accent)
+        .replace(/{fontFamily}/g, fontClass === 'Inter' ? 'Inter' : fontClass === 'Merriweather' ? 'Merriweather' : fontClass === 'Roboto' ? 'Roboto' : 'IBM Plex Sans')
+        .replace(/{skillsSection}/g, skillsHtml ? `<div>${skillsHtml}</div>` : '')
+        .replace(/{resumeMainSection}/g, resumeMainHtml)
+        .replace(/{coverLetterMainSection}/g, coverLetterMainHtml)
+        .replace(/{summary}/g, resumeData.summary || '')
+        .replace(/{experience}/g, resumeData.experience || '')
+        .replace(/{education}/g, resumeData.education || '')
+        .replace(/{skills}/g, resumeData.skills || '')
+        .replace(/{content}/g, coverLetterData.content || '');
+    };
+
+    return (
+      <div 
+        style={containerStyle}
+        className="w-full bg-white shadow-lg border border-gray-100 p-8 flex flex-col gap-4 text-left aspect-[1/1.414] overflow-auto select-none print:shadow-none"
+        dangerouslySetInnerHTML={{ __html: getCustomTemplatePreview() }}
+      />
+    );
+  }
 
   const renderContact = () => (
     <div 
